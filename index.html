@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 탐험대</title>
+<link rel="icon" href="assets/img/compass.webp">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--ink:#1d2433;--ink2:#4a5263;--mute:#8a91a0;--line:#e6e8ee;--bg:#f6f4ef;--card:#fff;--coral:#ff6b4a;--coral-soft:#ffe9e3;--mint:#1fb88a;--mint-soft:#dff6ee;--sky:#3c8df0;--sky-soft:#e3efff;--sun:#ffc23d;--sun-soft:#fff4d6;--red:#e5484d;--red-soft:#fdeaea;--lav:#8a6cf0;--lav-soft:#efe9ff;--r:18px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:17px;line-height:1.55;word-break:keep-all}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;border-radius:14px;padding:12px 18px;font-weight:700;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);transition:transform .08s,box-shadow .15s,background .15s}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.45;cursor:default}
+.b-pri{background:var(--coral);color:#fff;box-shadow:0 6px 16px rgba(255,107,74,.28)}
+.b-mint{background:var(--mint);color:#fff;box-shadow:0 6px 16px rgba(31,184,138,.25)}
+.b-sky{background:var(--sky);color:#fff}
+.b-red{background:var(--red-soft);color:var(--red);box-shadow:inset 0 0 0 1.5px #f6c2c3}
+.b-ghost{background:transparent;box-shadow:none;color:var(--ink2);padding:8px 10px}
+.b-sm{padding:8px 12px;font-size:15px;border-radius:11px}
+input,textarea{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:13px 15px;background:#fff;outline:none}
+input:focus,textarea:focus{border-color:var(--sky);box-shadow:0 0 0 4px var(--sky-soft)}
+textarea{min-height:110px;resize:vertical}
+.wrap{max-width:980px;margin:0 auto;padding:18px 18px 120px}
+.card{background:var(--card);border-radius:var(--r);padding:22px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 8px 28px rgba(29,36,51,.06)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+.mute{color:var(--mute)} .ink2{color:var(--ink2)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:14px;font-weight:700}
+.p-coral{background:var(--coral-soft);color:#c8452a}.p-mint{background:var(--mint-soft);color:#0f7a5a}.p-sky{background:var(--sky-soft);color:#215fb0}.p-sun{background:var(--sun-soft);color:#9a6a00}.p-lav{background:var(--lav-soft);color:#5b3fc4}.p-red{background:var(--red-soft);color:#b42d31}.p-gray{background:#eef0f4;color:var(--ink2)}
+.ico{width:1.4em;height:1.4em;object-fit:contain;vertical-align:-.3em}
+.ico-lg{width:84px;height:84px;object-fit:contain}
+.ico-md{width:44px;height:44px;object-fit:contain}
+h1,h2,h3{margin:0;letter-spacing:-.02em}
+h1{font-size:30px}h2{font-size:24px}h3{font-size:19px}
+.err{color:var(--red);font-weight:700;margin-top:8px}
+.okmsg{color:#0f7a5a;font-weight:800}
+.small{font-size:14px}
+.hide{display:none!important}
+/* 상단 */
+.top{position:sticky;top:0;z-index:20;background:rgba(246,244,239,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .in{max-width:980px;margin:0 auto;padding:10px 18px;display:flex;gap:12px;align-items:center}
+.logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:19px}
+.logo img{width:30px;height:30px}
+.dots{display:flex;gap:5px;align-items:center}
+.dots i{width:22px;height:8px;border-radius:5px;background:#dfe2e8;display:block}
+.dots i.on{background:var(--coral)} .dots i.done{background:var(--mint)} .dots i.miss{background:var(--sun)}
+.score{font-weight:900;font-size:18px}
+/* 미션 */
+.mhead{display:flex;gap:18px;align-items:center}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.step{border:1.5px solid var(--line);border-radius:16px;overflow:hidden;background:#fbfbfd}
+.step .im{aspect-ratio:16/10;background:#eef0f5 center/cover no-repeat;display:flex;align-items:center;justify-content:center;cursor:zoom-in}
+.step .im.noimg{cursor:default}
+.step .im img.ph{width:72px;height:72px;object-fit:contain;opacity:.9}
+.step .im img.shot{width:100%;height:100%;object-fit:contain;background:#fff}
+.step .tx{padding:11px 13px;font-size:16px}
+.step .n{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:800;margin-right:6px}
+.prompt{background:#1d2433;color:#fff;border-radius:16px;padding:16px 18px;margin-top:14px;position:relative}
+.prompt pre{margin:0;white-space:pre-wrap;font-family:inherit;font-size:16px;line-height:1.6}
+.prompt .cp{position:absolute;right:12px;top:12px;background:var(--coral);color:#fff;box-shadow:none;padding:7px 14px;font-size:14px}
+.prompt .lab{font-size:12px;letter-spacing:.2em;color:#ffb7a6;font-weight:800;margin-bottom:6px}
+.proof{margin-top:18px;border-top:2px dashed var(--line);padding-top:18px}
+.done-box{background:var(--mint-soft);border-radius:16px;padding:16px 18px;display:flex;gap:14px;align-items:center}
+.done-box b{font-size:20px}
+/* 하단 고정 */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.96);border-top:1px solid var(--line);backdrop-filter:blur(8px)}
+.dock .in{max-width:980px;margin:0 auto;padding:12px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dock button{padding:13px 18px}
+.ready-on{background:var(--mint)!important;color:#fff!important}
+/* 목록 */
+.list{display:flex;flex-direction:column;gap:8px}
+.li{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:14px;background:#fafbfc;border:1.5px solid var(--line)}
+.li.sos{border-color:#f6c2c3;background:var(--red-soft)}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{display:flex;flex-direction:column;align-items:center;width:84px;text-align:center;font-size:13px;font-weight:700;color:var(--ink2)}
+.badge img{width:56px;height:56px;object-fit:contain}
+.badge.off img{filter:grayscale(1);opacity:.25}.badge.off{color:#b8bcc6}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.rank{display:flex;flex-direction:column;gap:6px}
+.rank .r{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:12px;background:#fafbfc}
+.rank .r b{width:26px;text-align:center}
+.rank .r.me{background:var(--sun-soft)}
+/* 전시관 */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.gcard{background:#fff;border-radius:16px;border:1.5px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:8px}
+.gcard .k{font-size:13px;font-weight:800}
+.gcard .t{font-weight:800;font-size:17px}
+.modal{position:fixed;inset:0;z-index:100;background:rgba(15,20,30,.7);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal .box{background:#fff;border-radius:20px;width:min(1100px,100%);height:min(86vh,900px);display:flex;flex-direction:column;overflow:hidden}
+.modal .bar{display:flex;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
+.modal iframe{border:0;flex:1;width:100%;background:#fff}
+.zoom img{max-width:94vw;max-height:88vh;border-radius:12px;background:#fff}
+/* 축하 */
+.toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:200;background:var(--ink);color:#fff;padding:14px 22px;border-radius:16px;font-weight:800;box-shadow:0 12px 30px rgba(0,0,0,.25);display:flex;gap:10px;align-items:center;animation:pop .35s ease-out}
+@keyframes pop{from{transform:translate(-50%,-14px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden}
+.confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:3px;animation:fall 1.8s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.9}}
+/* 입장 */
+.hero{border-radius:24px;overflow:hidden;position:relative;background:#ffe9d8 center/cover no-repeat;min-height:230px;display:flex;align-items:flex-end}
+.hero .t{padding:22px 26px;background:linear-gradient(transparent,rgba(255,255,255,.95) 55%);width:100%}
+.hero h1{font-size:38px}
+/* 강사·전광판 */
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:13px;color:var(--mute);font-weight:700}
+.chip{display:inline-flex;width:24px;height:24px;border-radius:7px;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin:1px;cursor:pointer;background:#eef0f4;color:#9aa0ab}
+.chip.d{background:var(--mint);color:#fff}.chip.s{background:var(--sun-soft);color:#9a6a00}.chip.cur{outline:2px solid var(--coral)}
+.online{width:9px;height:9px;border-radius:50%;display:inline-block;background:#cfd3db}.online.on{background:var(--mint)}
+.metric{background:#fff;border-radius:16px;padding:14px 16px}
+.metric .v{font-size:30px;font-weight:900;line-height:1.1}
+.metric .l{font-size:13px;color:var(--mute);font-weight:700}
+.board{min-height:100vh;padding:34px 46px;display:flex;flex-direction:column;gap:24px}
+.board h1{font-size:54px}
+.bigcode{font-size:96px;font-weight:900;letter-spacing:.06em;line-height:1;color:var(--coral)}
+.bar{height:22px;border-radius:12px;background:#e6e8ee;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:12px;background:var(--mint);transition:width .6s}
+.podium{display:flex;gap:26px;align-items:flex-end;justify-content:center;margin-top:20px}
+.podium .p{width:250px;text-align:center}
+.podium .blk{border-radius:20px 20px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:14px;font-size:54px;font-weight:900;color:#fff}
+.podium .nm{font-size:30px;font-weight:900;margin-top:8px}
+.reveal{animation:rise .7s cubic-bezier(.2,1.4,.4,1)}
+@keyframes rise{from{transform:translateY(60px) scale(.8);opacity:0}to{transform:none;opacity:1}}
+.cert{border-radius:24px;padding:28px;background:#fff;border:3px solid var(--sun);position:relative;overflow:hidden}
+@media (max-width:640px){h1{font-size:25px}.hero h1{font-size:30px}.ico-lg{width:64px;height:64px}.dock button{padding:11px 13px;font-size:15px}.board{padding:18px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+'use strict';
+// ───────── 설정 ─────────
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbzzed07BPlQjoU8jVT5iu7Hu9-eIH8uc4AHUx5EFzMzudH-Bw-cENQ22KBVwKeHAYFMrA/exec';
+var API = (function () {
+  var q = new URLSearchParams(location.search).get('api');
+  if (q && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return q;
+  return GAS_URL;
+})();
+var DRIVE = {
+  skill: 'https://drive.google.com/drive/folders/1E2LVg3ys5VOeGbMPXxsJW0cZIuizB45K',
+  practice: 'https://drive.google.com/drive/folders/1uByaOSG62ukB-BksTSbBsGBzr2RHiqa_'
+};
+var IMG = 'assets/img/';
+var ICONS = { split: 'split', key: 'key', chat: 'chat', puzzle: 'puzzle', doc: 'doc', gpt: 'gamepad', gem: 'cartridge', link: 'link',
+  gallery: 'gallery', trophy: 'trophy', sos: 'lifebuoy', help: 'helphands', peer: 'handshake', flag: 'flag', star: 'star', heart: 'heart', compass: 'compass' };
+function icon(k, cls) { return '<img class="' + (cls || 'ico') + '" src="' + IMG + (ICONS[k] || k) + '.webp" alt="" onerror="this.style.visibility=\'hidden\'">'; }
+
+var BADGES = [
+  ['login', '첫 로그인', 'b_login'], ['chat', '대화의 시작', 'b_chat'], ['skill', '스킬 장인', 'b_skill'], ['hwp', '한글 마스터', 'b_hwp'],
+  ['maker', '게임 메이커', 'b_maker'], ['trio', '3대 AI 정복', 'b_trio'], ['helper', '친절한 도우미', 'b_helper'],
+  ['star', '인기 스타', 'b_star'], ['finisher', '끝까지 완주', 'b_finisher'], ['explorer', '번외 탐험가', 'b_explorer']
+];
+
+// ───────── 미션 ─────────
+var GAME_PROMPT = '[과목] 수업에서 [단원]을 복습하는 웹 게임을 만들어줘.\n- 대상: 고등학교 [학년] 학생\n- 방식: [퀴즈 / 타이핑 / 짝 맞추기] 형태, 문제 10개\n- 조건: HTML 파일 하나로, 휴대폰에서도 잘 보이게\n- 정답을 맞히면 점수, 틀리면 해설을 보여줘';
+var M = [
+  { t: 0, icon: 'split', title: '입장하고 화면 반으로 나누기', min: 5,
+    desc: '이 게임 창은 왼쪽, AI 창은 오른쪽에 두고 함께 보면서 진행해요.',
+    steps: [
+      { img: 'split1', text: '이 창을 누른 채로 <b>윈도우 키 + ←</b> → 화면 왼쪽 절반' },
+      { img: 'split2', text: '<b>Ctrl + N</b>으로 크롬 새 창 열기' },
+      { img: 'split3', text: '새 창에서 <b>윈도우 키 + →</b> → 오른쪽 절반' }
+    ],
+    proof: { kind: 'check', label: '화면을 나눴어요' } },
+  { t: 1, icon: 'key', title: 'Claude 가입하고 로그인하기', min: 10,
+    desc: '오른쪽 창에서 Claude에 들어가 Google 계정으로 가입해요. 휴대폰 문자 인증이 한 번 있어요.',
+    links: [{ label: 'Claude 열기', url: 'https://claude.ai' }],
+    steps: [
+      { img: 'claude1', text: 'claude.ai에서 <b>Google로 계속하기</b>' },
+      { img: 'claude2', text: '내 Google 계정 고르기 → <b>휴대폰 번호</b> 넣고 문자로 온 숫자 입력' },
+      { img: 'claude3', text: '이름 입력하고 시작 → <b>왼쪽 아래</b> 내 이름 옆 요금제 확인' }
+    ],
+    proof: { kind: 'quiz', q: '왼쪽 아래 내 이름 옆(또는 아래)에 보이는 요금제 이름은?', ph: '예: 무료', hint: '로그인하면 왼쪽 아래에 내 이름과 요금제가 보여요. 왼쪽 메뉴가 닫혀 있으면 왼쪽 위 ☰ 버튼을 눌러 보세요.' },
+    bonus: 'Claude에게 "나는 고등학교 [과목] 교사야. 오늘 AI 연수에서 꼭 알아야 할 것 3가지만 알려줘"라고 묻고 답을 붙여 넣기' },
+  { t: 2, icon: 'chat', title: 'Claude와 첫 대화', min: 10,
+    desc: '아래 요청을 복사해 Claude에 붙여 넣고, [ ] 부분만 바꿔 보내 보세요.',
+    prompt: '우리 학교와 내 수업을 소개하는 글을 3줄로 써줘.\n- 학교: [학교 이름]\n- 과목: [과목]\n- 학생들에게 하고 싶은 말: [한 줄]',
+    proof: { kind: 'text', q: 'Claude가 써 준 답을 그대로 붙여 넣으세요', ph: 'Claude의 답을 여기에 붙여 넣기' },
+    bonus: '같은 대화에서 "더 재미있게, 이모티콘도 넣어서 바꿔줘"라고 해 보고 결과 붙여 넣기' },
+  { t: 3, icon: 'puzzle', title: '한글 스킬 올리기', min: 10,
+    desc: 'Claude가 한글(hwpx) 파일을 만들 수 있게 해 주는 "스킬"을 설치해요.',
+    links: [{ label: '스킬 파일 받기(구글 드라이브)', url: DRIVE.skill }, { label: 'Claude 설정 열기', url: 'https://claude.ai/settings/capabilities' }],
+    steps: [
+      { img: 'skill1', text: '드라이브에서 <b>hwpx-design zip</b> 받기 (압축 풀지 않기)' },
+      { img: 'skill2', text: 'Claude 설정 › 기능 › <b>코드 실행·파일 생성 켜기</b> → 스킬 › + 추가 › 업로드' },
+      { img: 'skill3', text: '스위치가 <b>파란색</b>이면 설치 끝' }
+    ],
+    proof: { kind: 'quiz', q: '켜진 스킬의 이름을 적어 주세요', ph: '예: hwpx-…', hint: '설정 › 기능(또는 스킬) 화면에 방금 올린 스킬 이름이 보여요.' } },
+  { t: 4, icon: 'doc', title: '(선택) 한글 파일 받아 보기', min: 10, optional: true,
+    desc: '예시 공문을 Claude에 올리고 한 줄로 요청하면 한글 파일이 나와요. 무료 계정은 도중에 끊길 수 있어요 — 안 되면 건너뛰어도 괜찮아요.',
+    links: [{ label: '예시 공문 받기(구글 드라이브)', url: DRIVE.practice }],
+    prompt: '올린 공문을 올해 공문으로 바꿔서 한글파일로 만들어줘.',
+    steps: [
+      { img: 'doc1', text: 'Claude 입력창 <b>+</b> → 예시 공문 파일 올리고 요청 붙여 넣기' },
+      { img: 'doc2', text: '완성된 <b>.hwpx 파일 다운로드</b> → 파일 이름 확인' }
+    ],
+    proof: { kind: 'file', q: '받은 파일 이름을 적어 주세요', ph: '예: 2026 현장체험학습.hwpx' } },
+  { t: 5, icon: 'gpt', title: 'ChatGPT로 HTML 게임 만들기', min: 15,
+    desc: 'ChatGPT에 Google 계정으로 로그인하고, 내 교과 게임을 HTML 파일로 받아 여기 올려요. 올린 게임은 전시관에 걸려요!',
+    links: [{ label: 'ChatGPT 열기', url: 'https://chatgpt.com' }],
+    prompt: GAME_PROMPT + '\n- 다 만들면 HTML 파일로 내려받을 수 있게 해줘',
+    steps: [
+      { img: 'gpt1', text: '오른쪽 위 [로그인] → <b>Google 계정으로 계속하기</b>' },
+      { img: 'gpt2', text: '요청 붙여 넣기 → 답 아래 <b>HTML 파일 링크</b>를 눌러 내려받기' },
+      { img: 'gpt3', text: '아래 [파일 고르기]로 내려받은 파일 올리기' }
+    ],
+    proof: { kind: 'html', q: '내려받은 HTML 파일을 올려 주세요' },
+    bonus: 'ChatGPT에게 "효과음과 점수 애니메이션을 넣어줘"라고 해 보고, 바뀐 점을 한 줄로 적기' },
+  { t: 6, icon: 'gem', title: 'Gemini로 내 수업 게임 만들기', min: 15,
+    desc: 'Gemini에서 "캔버스"를 켜고 게임을 만든 뒤, 공유 링크를 받아 붙여 넣어요.',
+    links: [{ label: 'Gemini 열기', url: 'https://gemini.google.com' }],
+    prompt: GAME_PROMPT,
+    steps: [
+      { img: 'gem1', text: '입력창 아래 <b>도구 › 캔버스</b> 켜기' },
+      { img: 'gem2', text: '요청 붙여 넣고 보내기' },
+      { img: 'gem3', text: '오른쪽 위 <b>공유</b> → 링크 복사' }
+    ],
+    proof: { kind: 'link', q: 'Gemini 공유 링크를 붙여 넣어 주세요', ph: 'https://gemini.google.com/share/…' } },
+  { t: 7, icon: 'link', title: 'Claude 게임 + 링크로 나눠 주기', min: 15,
+    desc: 'Claude로 게임을 만들고, 학생에게 보낼 공유 링크를 받아요.',
+    links: [{ label: 'Claude 열기', url: 'https://claude.ai' }],
+    prompt: GAME_PROMPT,
+    steps: [
+      { img: 'cl1', text: '요청 붙여 넣고 보내기 → 오른쪽에 게임이 나와요' },
+      { img: 'cl2', text: '게임 오른쪽 위 <b>공유</b> 누르기' },
+      { img: 'cl3', text: '\'나만\' → <b>링크가 있는 모든 사용자</b> → 링크 복사' },
+      { img: 'cl4', text: '[공유] 대신 <b>[복사 ▾]</b>가 보이면 ▾ › 아티팩트 게시' }
+    ],
+    proof: { kind: 'link', q: 'Claude 공유 링크를 붙여 넣어 주세요', ph: 'https://claude.ai/public/artifacts/…' },
+    bonus: '게임 링크를 크롬에서 열고 빈 곳 오른쪽 클릭 › "QR 코드 만들기" — 만든 뒤 "QR 만들었어요"라고 적기' },
+  { t: 8, icon: 'gallery', title: '전시관 둘러보고 투표하기', min: 10,
+    desc: '다른 선생님들의 게임을 직접 해 보고, 마음에 드는 작품 3개에 ♥를 눌러 주세요.',
+    proof: { kind: 'vote' } },
+  { t: 9, icon: 'trophy', title: '시상식', min: 5, desc: '오늘의 탐험을 마칩니다. 수고하셨어요!', proof: { kind: 'end' } }
+];
+
+// ───────── 도우미 ─────────
+function $(s, el) { return (el || document).querySelector(s); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+function fetchT(url, init, ms) {
+  var ac = new AbortController(), t = setTimeout(function () { ac.abort(); }, ms || 15000);
+  return fetch(url, Object.assign({}, init || {}, { signal: ac.signal })).finally(function () { clearTimeout(t); });
+}
+async function apiGet(params) {
+  var r = await fetchT(API + '?' + new URLSearchParams(params), {}, 15000);
+  return r.json();
+}
+async function apiPost(body) {
+  for (var i = 0; i < 5; i++) {
+    try {
+      var r = await fetchT(API, { method: 'POST', body: JSON.stringify(body) }, 35000);
+      var j = await r.json();
+      if (j.err === 'busy') { await sleep(700 * (i + 1) + Math.random() * 600); continue; }
+      return j;
+    } catch (e) { await sleep(900 * (i + 1)); }
+  }
+  return { ok: false, err: '연결이 불안정해요. 잠시 뒤 다시 눌러 주세요' };
+}
+var store = {
+  get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+function toast(html, ms) {
+  var d = document.createElement('div'); d.className = 'toast'; d.innerHTML = html;
+  document.body.appendChild(d); setTimeout(function () { d.remove(); }, ms || 2600);
+}
+function confetti() {
+  var c = document.createElement('div'); c.className = 'confetti';
+  var cols = ['#ff6b4a', '#ffc23d', '#1fb88a', '#3c8df0', '#8a6cf0', '#ff9bb3'];
+  for (var i = 0; i < 70; i++) {
+    var p = document.createElement('i');
+    p.style.left = Math.random() * 100 + 'vw'; p.style.background = cols[i % cols.length];
+    p.style.animationDelay = (Math.random() * .6) + 's'; p.style.animationDuration = (1.4 + Math.random()) + 's';
+    c.appendChild(p);
+  }
+  document.body.appendChild(c); setTimeout(function () { c.remove(); }, 3200);
+}
+function mmss(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
+function copyText(t, btn) {
+  function done() { if (btn) { var o = btn.textContent; btn.textContent = '복사됨 ✓'; setTimeout(function () { btn.textContent = o; }, 1500); } }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fb); else fb();
+  function fb() { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); done(); }
+}
+function zoom(src) {
+  var l = $('#layer'); l.innerHTML = '<div class="modal zoom" onclick="this.remove()"><img src="' + esc(src) + '"></div>';
+}
+function badgeName(k) { var b = BADGES.filter(function (x) { return x[0] === k; })[0]; return b ? b[1] : k; }
+
+// ───────── 모드 ─────────
+var Q = new URLSearchParams(location.search);
+var MODE = Q.has('board') ? 'board' : (Q.has('teacher') || location.hash === '#teacher' ? 'teacher' : 'player');
+
+// ═════════ 참가자 ═════════
+function Player() {}
+Player.s = null; Player.st = null; Player.view = 'mission'; Player.sel = null; Player.lastTurn = null; Player.lastScore = null; Player.busy = false; Player.timer = null;
+Player.start = function () {
+  var s = store.get('aiq_session');
+  var code = Q.get('code');
+  if (s && (!code || code === s.code)) { Player.s = s; Player.poll(); }
+  else Player.joinView(code);
+};
+Player.joinView = function (code, err) {
+  var last = store.get('aiq_last') || {};
+  $('#app').innerHTML =
+    '<div class="wrap" style="max-width:620px">' +
+    '<div class="hero" style="background-image:url(' + IMG + 'hero.webp)"><div class="t"><div class="pill p-coral">교원 AI 연수 · 미션 게임</div><h1 style="margin-top:8px">AI 탐험대</h1><div class="ink2">미션을 하나씩 깨면서 AI와 친해져요</div></div></div>' +
+    '<div class="card" style="margin-top:16px"><h2>입장하기</h2>' +
+    '<div style="margin-top:14px" class="small mute">방 번호 (화면에 보이는 4자리)</div><input id="jcode" inputmode="numeric" maxlength="4" value="' + esc(code || '') + '" placeholder="0000" style="font-size:28px;letter-spacing:.3em;font-weight:900;text-align:center">' +
+    '<div style="margin-top:12px" class="small mute">학교</div><input id="jschool" maxlength="16" value="' + esc(last.school || '') + '" placeholder="예: 공주정보고">' +
+    '<div style="margin-top:12px" class="small mute">이름</div><input id="jname" maxlength="12" value="' + esc(last.name || '') + '" placeholder="예: 김선생">' +
+    '<button class="b-pri" id="jbtn" style="width:100%;margin-top:18px;font-size:19px;padding:15px">탐험 시작</button>' +
+    (err ? '<div class="err">' + esc(err) + '</div>' : '') +
+    '<div class="small mute" style="margin-top:12px">다른 컴퓨터로 옮겨도 같은 학교·이름으로 들어오면 점수가 그대로 이어져요.</div></div></div>';
+  $('#jbtn').onclick = async function () {
+    var c = $('#jcode').value.trim(), sc = $('#jschool').value.trim(), nm = $('#jname').value.trim();
+    if (!/^\d{4}$/.test(c)) return Player.joinView(c, '방 번호 4자리를 확인해 주세요');
+    if (!nm) return Player.joinView(c, '이름을 적어 주세요');
+    this.disabled = true; this.textContent = '들어가는 중…';
+    var j = await apiPost({ a: 'join', code: c, name: nm, school: sc });
+    if (!j.ok) return Player.joinView(c, j.err === 'noroom' ? '그런 방이 없어요. 번호를 다시 확인해 주세요' : (j.err || '입장하지 못했어요'));
+    Player.s = { code: c, pid: j.pid, token: j.token, name: nm, school: sc };
+    store.set('aiq_session', Player.s); store.set('aiq_last', { name: nm, school: sc });
+    Player.poll();
+  };
+};
+Player.poll = async function () {
+  clearTimeout(Player.timer);
+  try {
+    var st = await apiGet({ a: 'state', code: Player.s.code, pid: Player.s.pid, token: Player.s.token });
+    if (!st.ok) {
+      if (st.err === 'auth' || st.err === 'noroom') { store.del('aiq_session'); return Player.joinView(Player.s.code, st.err === 'noroom' ? '방이 닫혔어요' : '다시 입장해 주세요'); }
+    } else Player.update(st);
+  } catch (e) {}
+  Player.timer = setTimeout(Player.poll, (document.hidden ? 10000 : 3000) + Math.random() * 900);
+};
+Player.update = function (st) {
+  var prev = Player.st; Player.st = st;
+  if (Player.lastTurn !== null && st.turn !== Player.lastTurn) {
+    Player.sel = null; Player.view = st.turn >= 8 && st.turn < 9 ? 'gallery' : 'mission';
+    toast(icon(M[st.turn].icon) + ' 새 미션이 열렸어요: ' + esc(M[st.turn].title));
+  }
+  if (Player.lastScore !== null && st.me.score > Player.lastScore && prev) {
+    var newB = st.me.badges.filter(function (b) { return prev.me.badges.indexOf(b) < 0; });
+    if (newB.length) { confetti(); toast(icon('b_' + newB[0]) + ' 칭호 획득: ' + esc(badgeName(newB[0])), 3500); }
+  }
+  var turnChanged = !prev || prev.turn !== st.turn;
+  Player.lastTurn = st.turn; Player.lastScore = st.me.score;
+  if (Player.busy) return;
+  if (Player.force) { Player.force = false; Player.sig = null; return Player.render(); }
+  if (!turnChanged && Player.dirty()) return Player.patch();
+  var sig = JSON.stringify([st.seq, st.turn, st.readyCount, st.doneCount, Player.view, Player.sel, Math.floor((st.now - st.turnAt) / 30000)]);
+  if (sig === Player.sig && !turnChanged) return Player.patch();
+  Player.sig = sig;
+  Player.render();
+};
+// 입력 중(글자·파일·포커스)이면 화면 전체를 다시 그리지 않는다
+Player.dirty = function () {
+  var a = document.activeElement;
+  if (a && /^(INPUT|TEXTAREA)$/.test(a.tagName)) return true;
+  if ($('#layer') && $('#layer').innerHTML) return true;
+  var f = $('#pfile'); if (f && f.files && f.files.length) return true;
+  return ['pans', 'pbonus', 'ptitle', 'plink'].some(function (id) { var e = $('#' + id); return e && e.value.trim(); });
+};
+Player.patch = function () {
+  var st = Player.st, me = st.me;
+  var sc = $('.top .score'); if (sc) sc.textContent = me.score + '점';
+  var rk = $('.top .pill'); if (rk) rk.textContent = me.rank + '위';
+  var cnt = $('.dock .small'); if (cnt) cnt.textContent = '준비 ' + st.readyCount + '/' + st.total + ' · 완료 ' + st.doneCount + '/' + st.total;
+};
+Player.cur = function () { var st = Player.st; return Player.sel != null ? Player.sel : st.turn; };
+Player.render = function () {
+  var st = Player.st, me = st.me, t = Player.cur(), m = M[t];
+  var focus = document.activeElement && document.activeElement.id;
+  var keep = {}; ['pans', 'pbonus', 'ptitle', 'plink'].forEach(function (id) { var e = $('#' + id); if (e) keep[id] = e.value; });
+  var dots = '';
+  for (var i = 0; i <= 9; i++) {
+    var cls = i === st.turn ? 'on' : (me.done[i] && !me.done[i].skipped ? 'done' : (i < st.turn && i < 8 && !(M[i].optional) ? 'miss' : ''));
+    dots += '<i class="' + cls + '" title="' + esc(M[i].title) + '"></i>';
+  }
+  var html = '<div class="top"><div class="in"><div class="logo">' + icon('compass') + '<span>AI 탐험대</span></div>' +
+    '<div class="dots grow" style="justify-content:center">' + dots + '</div>' +
+    '<div class="row" style="gap:8px"><span class="pill p-sun">' + me.rank + '위</span><span class="score">' + me.score + '점</span></div></div></div>';
+  html += '<div class="wrap">';
+  // 탭
+  if (st.turn >= 9 && Player.view === 'mission' && Player.sel == null) Player.view = 'final';
+  var tabs = [['mission', '미션']];
+  if (st.turn >= 5) tabs.push(['gallery', '전시관 (' + st.gallery.length + ')']);
+  tabs.push(['me', '내 칭호 · 순위']);
+  if (st.turn >= 9) tabs.unshift(['final', '시상식']);
+  html += '<div class="row" style="margin-bottom:14px">' + tabs.map(function (x) {
+    return '<button class="b-sm ' + (Player.view === x[0] ? 'b-sky' : '') + '" data-view="' + x[0] + '">' + x[1] + '</button>';
+  }).join('') + '<span class="grow"></span><span class="small mute">' + esc(me.school) + ' ' + esc(me.name) + ' · 방 ' + st.code + '</span></div>';
+  if (Player.view === 'mission') html += Player.missionHtml(st, m, t);
+  else if (Player.view === 'gallery') html += Player.galleryHtml(st);
+  else if (Player.view === 'final') html += Player.finalHtml(st);
+  else html += Player.meHtml(st);
+  html += '</div>';
+  // 하단 버튼
+  if (st.turn < 9) {
+    html += '<div class="dock"><div class="in">' +
+      '<button id="bready" class="' + (me.ready ? 'ready-on' : 'b-mint') + '">' + icon('flag') + (me.ready ? ' 준비완료 ✓' : ' 준비완료') + '</button>' +
+      (me.sos ? '<button id="bsos" class="b-red">' + icon('sos') + ' 도움 요청 중 · 취소</button>' : '<button id="bsos">' + icon('sos') + ' 도와주세요</button>') +
+      '<span class="grow"></span><span class="small mute">준비 ' + st.readyCount + '/' + st.total + ' · 완료 ' + st.doneCount + '/' + st.total + '</span></div></div>';
+  }
+  $('#app').innerHTML = html;
+  Object.keys(keep).forEach(function (id) { var e = $('#' + id); if (e) e.value = keep[id]; });
+  if (focus && $('#' + focus)) $('#' + focus).focus();
+  Player.bind();
+};
+Player.missionHtml = function (st, m, t) {
+  var me = st.me, d = me.done[t];
+  var h = '';
+  // 밀린 미션
+  var miss = [];
+  for (var i = 0; i < Math.min(st.turn, 8); i++) if (!me.done[i] && i !== t) miss.push(i);
+  if (miss.length) h += '<div class="card" style="padding:14px 18px;margin-bottom:12px;background:var(--sun-soft)"><b>아직 못 끝낸 미션</b> ' +
+    miss.map(function (i) { return '<button class="b-sm" data-sel="' + i + '" style="margin:4px 4px 0 0">' + icon(M[i].icon) + ' ' + (i) + '. ' + esc(M[i].title) + '</button>'; }).join('') + '</div>';
+  if (Player.sel != null && Player.sel !== st.turn) h += '<button class="b-ghost" data-sel="' + st.turn + '">← 지금 미션으로 돌아가기</button>';
+  h += '<div class="card"><div class="mhead">' + icon(m.icon, 'ico-lg') + '<div class="grow"><div class="row"><span class="pill p-coral">미션 ' + t + '</span>' +
+    (m.optional ? '<span class="pill p-gray">선택</span>' : '') + '<span class="pill p-gray">약 ' + m.min + '분</span>' +
+    (t === st.turn ? '<span class="pill p-sky">' + mmss(st.now - st.turnAt) + ' 지남</span>' : '') + '</div>' +
+    '<h1 style="margin-top:6px">' + esc(m.title) + '</h1><div class="ink2" style="margin-top:4px">' + m.desc + '</div></div></div>';
+  if (m.links) h += '<div class="row" style="margin-top:14px">' + m.links.map(function (l) { return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener"><button class="b-sky">' + esc(l.label) + ' ↗</button></a>'; }).join('') + '</div>';
+  if (m.steps) h += '<div class="steps">' + m.steps.map(function (s, i) {
+    var src = 'assets/steps/' + s.img + '.jpg';
+    return '<div class="step"><div class="im" data-zoom="' + src + '"><img class="shot" src="' + src + '" alt="" onerror="this.parentNode.classList.add(\'noimg\');this.parentNode.removeAttribute(\'data-zoom\');this.outerHTML=\'' + icon(m.icon, 'ph').replace(/"/g, '&quot;').replace(/'/g, '') + '\'"></div><div class="tx"><span class="n">' + (i + 1) + '</span>' + s.text + '</div></div>';
+  }).join('') + '</div>';
+  if (m.prompt) h += '<div class="prompt"><div class="lab">복사해서 붙여 넣기</div><button class="cp" data-copy="' + t + '">복사</button><pre>' + esc(m.prompt) + '</pre></div>';
+  // 인증
+  h += '<div class="proof">';
+  if (d && !d.skipped) {
+    h += '<div class="done-box">' + icon('star', 'ico-md') + '<div><b>미션 완료! +' + ((d.pts || 0) + (d.speed || 0)) + '점</b>' +
+      (d.speed ? ' <span class="pill p-sun">빠른 완료 +' + d.speed + '</span>' : '') +
+      (d.kind === 'peer' ? ' <span class="pill p-lav">짝꿍 인증</span>' : '') + (d.kind === 'teacher' ? ' <span class="pill p-lav">강사 인정</span>' : '') +
+      '<div class="small ink2">' + (t === st.turn ? '아래 <b>준비완료</b>를 눌러 주세요. 기다리는 동안 도움이 필요한 선생님을 도와드리거나 번외 미션에 도전해 보세요.' : '좋아요! 지금 미션으로 돌아가세요.') + '</div></div></div>';
+  } else if (d && d.skipped) {
+    h += '<div class="done-box" style="background:#eef0f4"><div><b>건너뛰었어요</b><div class="small ink2">나중에 해 보시면 점수를 받을 수 있어요.</div></div><span class="grow"></span><button class="b-sm" data-unskip="1">지금 해 보기</button></div>';
+  } else h += Player.proofHtml(st, m, t);
+  h += '<div id="perr" class="err"></div></div>';
+  h += '</div>';
+  // 함께하기: 도움 · 짝꿍 · 번외
+  var canHelp = me.done[st.turn] && !me.done[st.turn].skipped;
+  var side = '';
+  if (st.sosList.length) side += '<div class="card"><h3>' + icon('sos') + ' 도움이 필요한 선생님</h3><div class="list" style="margin-top:10px">' +
+    st.sosList.map(function (s) { return '<div class="li sos"><b>' + esc(s.name) + '</b><span class="grow small">' + esc(s.msg) + '</span>' + (canHelp ? '<button class="b-sm" data-helped="' + s.pid + '">제가 도와드렸어요</button>' : '<span class="small mute">미션을 끝내면 도와드릴 수 있어요</span>') + '</div>'; }).join('') + '</div></div>';
+  if (st.peerList.length) side += '<div class="card"><h3>' + icon('peer') + ' 짝꿍 인증 요청</h3><div class="small mute">옆 선생님 화면을 보고, 미션을 해냈으면 확인해 주세요 (+30점)</div><div class="list" style="margin-top:10px">' +
+    st.peerList.map(function (p) { var mine = me.done[p.t] && !me.done[p.t].skipped; return '<div class="li"><b>' + esc(p.name) + '</b><span class="grow small">미션 ' + p.t + '. ' + esc(M[p.t].title) + '</span>' + (mine ? '<button class="b-sm b-mint" data-peerok="' + p.pid + '">확인했어요</button>' : '<span class="small mute">나도 이 미션을 끝내야 확인 가능</span>') + '</div>'; }).join('') + '</div></div>';
+  if (m.bonus) {
+    var bd = me.bonus[t];
+    side += '<div class="card" style="background:var(--lav-soft)"><h3>' + icon('star') + ' 번외 미션 <span class="pill p-lav">+30</span></h3><div style="margin-top:6px">' + esc(m.bonus) + '</div>' +
+      (bd ? '<div class="okmsg" style="margin-top:8px">번외 미션 완료!</div>' : '<textarea id="pbonus" placeholder="결과를 붙여 넣거나 적어 주세요" style="margin-top:10px;min-height:80px"></textarea><button class="b-sm" id="bbonus" style="margin-top:8px">번외 인증</button>') + '</div>';
+  }
+  if (side) h += '<div class="grid2" style="margin-top:14px">' + side + '</div>';
+  return h;
+};
+Player.proofHtml = function (st, m, t) {
+  var p = m.proof, me = st.me, h = '';
+  if (p.kind === 'check') h += '<button class="b-pri" id="psub" style="font-size:19px;padding:15px 24px">' + esc(p.label) + '</button>';
+  else if (p.kind === 'quiz' || p.kind === 'file') h += '<h3>인증 · ' + esc(p.q) + '</h3><div class="row" style="margin-top:10px"><input id="pans" class="grow" placeholder="' + esc(p.ph || '') + '" style="max-width:420px"><button class="b-pri" id="psub">확인</button></div>' + (p.hint ? '<div class="small mute" style="margin-top:8px">힌트: ' + esc(p.hint) + '</div>' : '');
+  else if (p.kind === 'text') h += '<h3>인증 · ' + esc(p.q) + '</h3><textarea id="pans" placeholder="' + esc(p.ph || '') + '" style="margin-top:10px"></textarea><button class="b-pri" id="psub" style="margin-top:10px">인증하기</button>';
+  else if (p.kind === 'html') h += '<h3>인증 · ' + esc(p.q) + '</h3><div class="row" style="margin-top:10px"><input id="ptitle" placeholder="게임 이름 (예: 계정과목 퀴즈)" style="max-width:320px"><label><input type="file" id="pfile" accept=".html,.htm,text/html" class="hide"><span class="pill p-sky" style="padding:12px 18px;cursor:pointer;font-size:16px">파일 고르기</span></label><span id="pfname" class="small mute"></span></div><button class="b-pri" id="psub" style="margin-top:10px">올리기 (+150점)</button>';
+  else if (p.kind === 'link') h += '<h3>인증 · ' + esc(p.q) + '</h3><input id="ptitle" placeholder="게임 이름 (예: 이차함수 퀴즈)" style="margin-top:10px;max-width:420px"><div class="row" style="margin-top:8px"><input id="plink" class="grow" placeholder="' + esc(p.ph || '') + '"><button class="b-pri" id="psub">인증 (+150점)</button></div>';
+  else if (p.kind === 'vote') {
+    var n = me.votes.length;
+    h += '<h3>' + icon('heart') + ' 투표 ' + n + '/3</h3><div class="ink2">전시관에서 마음에 드는 작품 3개에 ♥를 눌러 주세요.</div><button class="b-pri" data-view="gallery" style="margin-top:10px">전시관 가기</button>';
+  }
+  if (m.optional) h += ' <button class="b-ghost" id="pskip">이번엔 건너뛰기</button>';
+  if (t >= 1 && t <= 7) {
+    h += '<div style="margin-top:16px" class="row small">' +
+      (me.peerReq === t ? '<span class="pill p-lav">짝꿍 인증을 기다리는 중…</span><button class="b-ghost b-sm" data-peerreq="0">취소</button>'
+        : '<span class="mute">인증이 잘 안 되나요?</span><button class="b-sm" data-peerreq="1">' + icon('peer') + ' 짝꿍에게 확인받기</button>') + '</div>';
+  }
+  return h;
+};
+Player.galleryHtml = function (st) {
+  var me = st.me, h = '<div class="card"><div class="row"><h2 class="grow">' + icon('gallery') + ' 우리 반 게임 전시관</h2><span class="pill p-coral">♥ ' + me.votes.length + '/3</span></div><div class="ink2" style="margin-top:4px">게임을 눌러 직접 해 보세요. 마음에 드는 작품 3개에 ♥!</div>';
+  if (!st.gallery.length) h += '<div class="mute" style="margin-top:18px">아직 올라온 작품이 없어요. 미션 5~7을 끝내면 여기에 걸려요.</div>';
+  var kinds = { 5: ['ChatGPT', 'p-mint'], 6: ['Gemini', 'p-sky'], 7: ['Claude', 'p-coral'] };
+  h += '<div class="gal" style="margin-top:16px">' + st.gallery.slice().reverse().map(function (g) {
+    var k = kinds[g.t] || ['게임', 'p-gray'], mine = g.name === me.name && g.school === me.school, voted = me.votes.indexOf(g.gid) >= 0;
+    return '<div class="gcard"><div class="row"><span class="pill ' + k[1] + ' k">' + k[0] + '</span><span class="grow"></span><span class="small mute">♥ ' + g.likes + '</span></div>' +
+      '<div class="t">' + esc(g.title) + '</div><div class="small mute">' + esc(g.school) + ' ' + esc(g.name) + '</div>' +
+      '<div class="row">' + (g.kind === 'html' ? '<button class="b-sm b-sky" data-play="' + g.gid + '">해 보기</button>' : '<a href="' + esc(g.url) + '" target="_blank" rel="noopener"><button class="b-sm b-sky">열기 ↗</button></a>') +
+      (mine ? '<span class="small mute">내 작품</span>' : '<button class="b-sm ' + (voted ? 'b-pri' : '') + '" data-vote="' + g.gid + '">' + (voted ? '♥ 투표함' : '♡ 투표') + '</button>') + '</div></div>';
+  }).join('') + '</div></div>';
+  return h;
+};
+Player.meHtml = function (st) {
+  var me = st.me;
+  var h = '<div class="grid2"><div class="card"><h3>내 칭호</h3><div class="badges" style="margin-top:12px">' + BADGES.map(function (b) {
+    var on = me.badges.indexOf(b[0]) >= 0;
+    return '<div class="badge ' + (on ? '' : 'off') + '"><img src="' + IMG + b[2] + '.webp" alt="" onerror="this.style.visibility=\'hidden\'">' + b[1] + '</div>';
+  }).join('') + '</div></div>';
+  h += '<div class="card"><h3>' + icon('trophy') + ' 순위 (상위 5명)</h3><div class="rank" style="margin-top:10px">' + st.top5.map(function (p, i) {
+    var mine = p.name === me.name && p.school === me.school;
+    return '<div class="r ' + (mine ? 'me' : '') + '"><b>' + (i < 3 ? '<img src="' + IMG + 'medal' + (i + 1) + '.webp" style="width:26px;vertical-align:middle" alt="' + (i + 1) + '">' : (i + 1)) + '</b><span class="grow">' + esc(p.school) + ' ' + esc(p.name) + '</span><b style="width:auto">' + p.score + '</b></div>';
+  }).join('') + (me.rank > 5 ? '<div class="r me"><b>' + me.rank + '</b><span class="grow">나</span><b style="width:auto">' + me.score + '</b></div>' : '') + '</div>' +
+    '<div class="small mute" style="margin-top:10px">도움 ' + me.helped + '회 · 받은 ♥ ' + me.likes + '</div></div></div>';
+  return h;
+};
+Player.finalHtml = function (st) {
+  var me = st.me, f = st.final || [];
+  var top3 = f.slice(0, 3);
+  var h = '<div class="card" style="text-align:center"><h1>' + icon('trophy') + ' 오늘의 탐험 결과</h1><div class="podium">';
+  [1, 0, 2].forEach(function (i) {
+    var p = top3[i]; if (!p) return;
+    var hgt = [220, 170, 130][i], col = ['#ffc23d', '#9fb3c8', '#e3a06b'][i];
+    h += '<div class="p"><div class="nm">' + esc(p.name) + '</div><div class="small mute">' + esc(p.school) + ' · ' + p.score + '점</div><div class="blk" style="height:' + hgt + 'px;background:' + col + '">' + (i + 1) + '</div></div>';
+  });
+  h += '</div></div>';
+  h += '<div class="cert" style="margin-top:16px"><div class="row"><img src="' + IMG + 'compass.webp" class="ico-md" alt=""><div class="grow"><div class="pill p-sun">AI 탐험대 수료 카드</div><h2 style="margin-top:6px">' + esc(me.school) + ' ' + esc(me.name) + ' 선생님</h2></div><div style="text-align:right"><div class="bigcode" style="font-size:44px">' + me.rank + '위</div><div class="score">' + me.score + '점</div></div></div>' +
+    '<div class="badges" style="margin-top:16px">' + (me.badges.length ? me.badges.map(function (k) { return '<div class="badge"><img src="' + IMG + 'b_' + k + '.webp" alt="" onerror="this.style.visibility=\'hidden\'">' + esc(badgeName(k)) + '</div>'; }).join('') : '<span class="mute">칭호를 모으지 못했어요 — 다음 탐험에서!</span>') + '</div>' +
+    '<div class="ink2" style="margin-top:14px">오늘 만난 AI: Claude · ChatGPT · Gemini — 집에서도 오늘처럼 한 단계씩 해 보세요.</div></div>';
+  return h;
+};
+Player.bind = function () {
+  var st = Player.st, t = Player.cur(), m = M[t];
+  document.querySelectorAll('[data-view]').forEach(function (b) { b.onclick = function () { Player.view = b.dataset.view; Player.sig = null; Player.render(); scrollTo(0, 0); }; });
+  document.querySelectorAll('[data-sel]').forEach(function (b) { b.onclick = function () { Player.sel = +b.dataset.sel; Player.view = 'mission'; Player.sig = null; Player.render(); scrollTo(0, 0); }; });
+  document.querySelectorAll('[data-zoom]').forEach(function (b) { b.onclick = function () { zoom(b.dataset.zoom); }; });
+  document.querySelectorAll('[data-copy]').forEach(function (b) { b.onclick = function () { copyText(M[+b.dataset.copy].prompt, b); }; });
+  var f = $('#pfile'); if (f) f.onchange = function () { $('#pfname').textContent = f.files[0] ? f.files[0].name : ''; };
+  var sub = $('#psub'); if (sub) sub.onclick = function () { Player.submit(t, m); };
+  var ans = $('#pans'); if (ans && ans.tagName === 'INPUT') ans.onkeydown = function (e) { if (e.key === 'Enter') Player.submit(t, m); };
+  var sk = $('#pskip'); if (sk) sk.onclick = function () { Player.act({ a: 'skip', t: t }); };
+  var us = document.querySelector('[data-unskip]'); if (us) us.onclick = function () { var d = Player.st.me.done; delete d[t]; Player.render(); };
+  var bb = $('#bbonus'); if (bb) bb.onclick = async function () {
+    var r = await Player.act({ a: 'bonus', t: t, text: $('#pbonus').value });
+    if (r.ok && r.pts) { confetti(); toast(icon('star') + ' 번외 미션 +30점'); }
+  };
+  var br = $('#bready'); if (br) br.onclick = function () { Player.act({ a: 'ready', on: !st.me.ready }); };
+  var bs = $('#bsos'); if (bs) bs.onclick = function () {
+    if (st.me.sos) return Player.act({ a: 'sos', on: false });
+    Player.sosAsk();
+  };
+  document.querySelectorAll('[data-helped]').forEach(function (b) { b.onclick = async function () { var r = await Player.act({ a: 'helped', target: b.dataset.helped }); if (r.ok) toast(icon('help') + ' 고마워요! 도움 +30점'); }; });
+  document.querySelectorAll('[data-peerok]').forEach(function (b) { b.onclick = async function () { var r = await Player.act({ a: 'peerOk', target: b.dataset.peerok }); if (r.ok) toast(icon('peer') + ' 짝꿍 인증 완료! +30점'); }; });
+  document.querySelectorAll('[data-peerreq]').forEach(function (b) { b.onclick = function () { Player.act({ a: 'peerReq', t: t, on: b.dataset.peerreq === '1' }); }; });
+  document.querySelectorAll('[data-vote]').forEach(function (b) { b.onclick = function () { Player.act({ a: 'vote', gid: b.dataset.vote }); }; });
+  document.querySelectorAll('[data-play]').forEach(function (b) { b.onclick = function () { Player.play(b.dataset.play); }; });
+};
+Player.sosAsk = function () {
+  var opts = ['로그인이 안 돼요', '버튼을 못 찾겠어요', '오류가 나요', '무엇을 할지 모르겠어요'];
+  $('#layer').innerHTML = '<div class="modal" id="sosm"><div class="card" style="width:min(460px,100%)"><h2>' + icon('sos') + ' 어떤 도움이 필요하세요?</h2><div class="list" style="margin-top:14px">' +
+    opts.map(function (o) { return '<button data-msg="' + esc(o) + '" style="text-align:left">' + esc(o) + '</button>'; }).join('') +
+    '</div><button class="b-ghost" id="sosx" style="margin-top:10px">닫기</button></div></div>';
+  document.querySelectorAll('#sosm [data-msg]').forEach(function (b) { b.onclick = async function () { $('#layer').innerHTML = ''; var r = await Player.act({ a: 'sos', on: true, msg: b.dataset.msg }); if (r.ok) toast(icon('sos') + ' 도움을 요청했어요. 곧 도와드릴게요'); }; });
+  $('#sosx').onclick = function () { $('#layer').innerHTML = ''; };
+};
+Player.act = async function (body) {
+  Player.busy = true;
+  body.code = Player.s.code; body.pid = Player.s.pid; body.token = Player.s.token;
+  var r = await apiPost(body);
+  Player.busy = false; Player.sig = null;
+  if (r.ok) { ['pans', 'pbonus', 'ptitle', 'plink', 'pfile'].forEach(function (id) { var e = $('#' + id); if (e) e.value = ''; }); Player.force = true; }
+  if (!r.ok) { var e = $('#perr'); if (e) e.textContent = r.err || '다시 시도해 주세요'; else toast(esc(r.err || '다시 시도해 주세요')); }
+  clearTimeout(Player.timer); Player.poll();
+  return r;
+};
+Player.submit = async function (t, m) {
+  var body = { a: 'submit', t: t }, k = m.proof.kind, sub = $('#psub'), err = $('#perr');
+  if (err) err.textContent = '';
+  if (k === 'quiz' || k === 'file' || k === 'text') { body.answer = $('#pans').value; if (!body.answer.trim()) { err.textContent = '먼저 답을 적어 주세요'; return; } }
+  if (k === 'link') { body.link = $('#plink').value; body.title = $('#ptitle').value; if (!body.link.trim()) { err.textContent = '공유 링크를 붙여 넣어 주세요'; return; } }
+  if (k === 'html') {
+    var f = $('#pfile').files[0];
+    if (!f) { err.textContent = '먼저 [파일 고르기]로 HTML 파일을 골라 주세요'; return; }
+    if (f.size > 1500000) { err.textContent = '파일이 너무 커요(1.5MB까지)'; return; }
+    body.html = await f.text(); body.title = $('#ptitle').value || f.name.replace(/\.html?$/i, '');
+  }
+  if (sub) { sub.disabled = true; sub.textContent = '확인하는 중…'; }
+  var r = await Player.act(body);
+  var sb = $('#psub'); if (!r.ok && sb) { sb.disabled = false; sb.textContent = k === 'html' || k === 'link' ? '다시 인증하기' : '확인'; }
+  if (r.ok && !r.already) { confetti(); toast(icon(m.icon) + ' 미션 완료! +' + (r.pts || 0) + '점'); }
+};
+Player.play = async function (gid) {
+  $('#layer').innerHTML = '<div class="modal"><div class="box"><div class="bar"><b class="grow">게임 불러오는 중…</b><button class="b-sm" id="gx">닫기</button></div><iframe id="gframe" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe></div></div>';
+  $('#gx').onclick = function () { $('#layer').innerHTML = ''; };
+  var r = await apiGet({ a: 'gal', code: Player.s.code, gid: gid });
+  var g = (Player.st.gallery || []).filter(function (x) { return x.gid === gid; })[0];
+  var fr = $('#gframe'); if (!fr) return;
+  if (!r.ok) { fr.srcdoc = '<p style="font-family:sans-serif;padding:20px">게임을 불러오지 못했어요.</p>'; return; }
+  $('.modal .bar b').textContent = g ? g.title + ' — ' + g.school + ' ' + g.name : '게임';
+  fr.srcdoc = r.html;
+};
+
+// ═════════ 강사 ═════════
+function Teacher() {}
+Teacher.pin = null; Teacher.code = null; Teacher.room = null; Teacher.timer = null;
+Teacher.start = function () {
+  var s = store.get('aiq_teacher') || {};
+  Teacher.pin = sessionStorageGet('aiq_pin');
+  Teacher.code = s.code || null;
+  if (Teacher.pin && Teacher.code) return Teacher.poll();
+  Teacher.loginView();
+};
+function sessionStorageGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+Teacher.loginView = function (err) {
+  $('#app').innerHTML = '<div class="wrap" style="max-width:560px"><div class="card"><div class="logo">' + icon('compass') + ' AI 탐험대 · 강사</div>' +
+    '<div class="small mute" style="margin-top:16px">강사 PIN</div><input id="tpin" type="password" inputmode="numeric" value="' + esc(Teacher.pin || '') + '">' +
+    '<h3 style="margin-top:18px">새 방 만들기</h3><input id="ttitle" placeholder="연수 이름 (예: 공주정보고 교원 AI 연수)" style="margin-top:8px"><button class="b-pri" id="tnew" style="margin-top:10px;width:100%">방 만들기</button>' +
+    '<h3 style="margin-top:22px">만든 방으로 들어가기</h3><div class="row" style="margin-top:8px"><input id="tcode" maxlength="4" inputmode="numeric" placeholder="0000" class="grow" value="' + esc(Teacher.code || '') + '"><button id="tgo">들어가기</button></div>' +
+    (err ? '<div class="err">' + esc(err) + '</div>' : '') + '</div></div>';
+  $('#tnew').onclick = async function () {
+    Teacher.pin = $('#tpin').value; this.disabled = true;
+    var r = await apiPost({ a: 'createRoom', pin: Teacher.pin, title: $('#ttitle').value });
+    if (!r.ok) return Teacher.loginView(r.err === 'pin' ? 'PIN이 틀렸어요' : r.err);
+    Teacher.enter(r.code);
+  };
+  $('#tgo').onclick = function () { Teacher.pin = $('#tpin').value; Teacher.enter($('#tcode').value.trim()); };
+};
+Teacher.enter = function (code) {
+  Teacher.code = code; sessionStorageSet('aiq_pin', Teacher.pin); store.set('aiq_teacher', { code: code });
+  Teacher.poll();
+};
+Teacher.poll = async function () {
+  clearTimeout(Teacher.timer);
+  try {
+    var r = await apiGet({ a: 'tstate', code: Teacher.code, pin: Teacher.pin });
+    if (!r.ok) { if (r.err === 'pin' || r.err === 'noroom') return Teacher.loginView(r.err === 'pin' ? 'PIN이 틀렸어요' : '방을 찾을 수 없어요'); }
+    else { Teacher.room = r.room; if (!Teacher.busy) Teacher.render(); }
+  } catch (e) {}
+  Teacher.timer = setTimeout(Teacher.poll, 2500);
+};
+Teacher.act = async function (body) {
+  Teacher.busy = true; body.code = Teacher.code; body.pin = Teacher.pin;
+  var r = await apiPost(body); Teacher.busy = false;
+  if (!r.ok) toast(esc(r.err || '실패'));
+  Teacher.poll(); return r;
+};
+Teacher.render = function () {
+  var r = Teacher.room, m = M[r.turn], ps = r.players, n = ps.length;
+  var done = ps.filter(function (p) { return p.doneNow; }).length, ready = ps.filter(function (p) { return p.ready; }).length;
+  var sos = ps.filter(function (p) { return p.sos; }), peers = ps.filter(function (p) { return p.peerReq != null; });
+  var on = ps.filter(function (p) { return r.now - p.seen < 20000; }).length;
+  var join = location.origin + location.pathname;
+  var h = '<div class="wrap" style="max-width:1200px;padding-bottom:40px">';
+  h += '<div class="row"><div class="logo">' + icon('compass') + ' AI 탐험대 · 강사</div><span class="pill p-gray">' + esc(r.title) + '</span><span class="grow"></span>' +
+    '<a href="?board=' + r.code + '" target="_blank"><button class="b-sm">전광판 열기 ↗</button></a><button class="b-sm b-ghost" id="tout">나가기</button></div>';
+  h += '<div class="card" style="margin-top:14px"><div class="row"><div><div class="small mute">방 번호</div><div class="bigcode" style="font-size:64px">' + r.code + '</div><div class="small mute">' + esc(join) + '</div></div><span class="grow"></span>' +
+    '<button id="tprev" ' + (r.turn <= 0 ? 'disabled' : '') + '>◀ 이전</button>' +
+    '<div style="text-align:center;min-width:280px">' + icon(m.icon, 'ico-md') + '<div class="small mute">턴 ' + r.turn + ' / 9 · ' + mmss(r.now - r.turnAt) + ' 지남 (예정 ' + m.min + '분)</div><h2>' + esc(m.title) + '</h2></div>' +
+    '<button class="b-pri" id="tnext" ' + (r.turn >= 9 ? 'disabled' : '') + '>다음 턴 ▶</button></div>' +
+    '<div class="grid2" style="grid-template-columns:repeat(5,1fr);margin-top:16px">' +
+    '<div class="metric" style="background:var(--mint-soft)"><div class="l">미션 완료</div><div class="v">' + done + '/' + n + '</div></div>' +
+    '<div class="metric" style="background:var(--sky-soft)"><div class="l">준비완료</div><div class="v">' + ready + '/' + n + '</div></div>' +
+    '<div class="metric" style="background:' + (sos.length ? 'var(--red-soft)' : '#fff') + '"><div class="l">도움 요청</div><div class="v" style="color:' + (sos.length ? 'var(--red)' : 'inherit') + '">' + sos.length + '</div></div>' +
+    '<div class="metric"><div class="l">짝꿍 인증 요청</div><div class="v">' + peers.length + '</div></div>' +
+    '<div class="metric"><div class="l">접속 중</div><div class="v">' + on + '/' + n + '</div></div></div></div>';
+  if (sos.length) h += '<div class="card" style="margin-top:14px"><h3>' + icon('sos') + ' 도움 요청</h3><div class="list" style="margin-top:10px">' + sos.map(function (p) {
+    return '<div class="li sos"><b>' + esc(p.name) + '</b><span class="small">' + esc(p.school) + '</span><span class="grow">' + esc(p.sos.msg) + ' · 미션 ' + p.sos.t + '</span><span class="small mute">' + mmss(r.now - p.sos.at) + ' 전</span><button class="b-sm" data-sosok="' + p.pid + '">해결</button></div>';
+  }).join('') + '</div></div>';
+  h += '<div class="card" style="margin-top:14px"><h3>참가자 ' + n + '명</h3><div style="overflow:auto"><table><tr><th>순위</th><th></th><th>이름</th><th>학교</th><th>점수</th><th>지금 미션</th><th>준비</th><th>미션 0~8 (누르면 강사 인정)</th><th>칭호</th><th></th></tr>' +
+    ps.map(function (p) {
+      var chips = '';
+      for (var i = 0; i <= 8; i++) chips += '<span class="chip ' + (p.done.indexOf(i) >= 0 ? 'd ' : '') + (i === r.turn ? 'cur' : '') + '" data-credit="' + p.pid + ':' + i + '" title="미션 ' + i + '">' + i + '</span>';
+      var stt = p.sos ? '<span class="pill p-red">도움 요청</span>' : (p.doneNow ? '<span class="pill p-mint">완료</span>' : (p.peerReq != null ? '<span class="pill p-lav">짝꿍 대기</span>' : '<span class="pill p-gray">진행 중</span>'));
+      return '<tr><td><b>' + p.rank + '</b></td><td><span class="online ' + (r.now - p.seen < 20000 ? 'on' : '') + '"></span></td><td><b>' + esc(p.name) + '</b></td><td class="small">' + esc(p.school) + '</td><td><b>' + p.score + '</b></td><td>' + stt + '</td><td>' + (p.ready ? '✅' : '') + '</td><td>' + chips + '</td><td class="small">' + p.badges.length + '개 · 도움 ' + p.helped + '</td><td><button class="b-ghost b-sm" data-kick="' + p.pid + '" title="목록에서 빼기">✕</button></td></tr>';
+    }).join('') + '</table></div></div>';
+  if (r.gallery.length) h += '<div class="card" style="margin-top:14px"><h3>' + icon('gallery') + ' 전시관 ' + r.gallery.length + '점</h3><div class="list" style="margin-top:10px">' + r.gallery.map(function (g) {
+    return '<div class="li"><span class="pill p-gray">' + ({ 5: 'ChatGPT', 6: 'Gemini', 7: 'Claude' }[g.t] || '') + '</span><b>' + esc(g.title) + '</b><span class="grow small">' + esc(g.school) + ' ' + esc(g.name) + ' · ♥ ' + (g.likes || 0) + '</span>' +
+      (g.kind === 'link' ? '<a href="' + esc(g.url) + '" target="_blank"><button class="b-sm">열기</button></a>' : '') + '<button class="b-sm ' + (g.hidden ? 'b-pri' : '') + '" data-hide="' + g.gid + '">' + (g.hidden ? '다시 보이기' : '숨기기') + '</button></div>';
+  }).join('') + '</div></div>';
+  h += '</div>';
+  $('#app').innerHTML = h;
+  $('#tnext').onclick = function () { if (r.turn < 9 && confirm('다음 턴(' + M[r.turn + 1].title + ')으로 넘길까요?')) Teacher.act({ a: 't_turn', turn: r.turn + 1 }); };
+  $('#tprev').onclick = function () { if (confirm('이전 턴으로 돌아갈까요?')) Teacher.act({ a: 't_turn', turn: r.turn - 1 }); };
+  $('#tout').onclick = function () { store.del('aiq_teacher'); Teacher.code = null; clearTimeout(Teacher.timer); Teacher.loginView(); };
+  document.querySelectorAll('[data-sosok]').forEach(function (b) { b.onclick = function () { Teacher.act({ a: 't_sosOk', target: b.dataset.sosok }); }; });
+  document.querySelectorAll('[data-hide]').forEach(function (b) { b.onclick = function () { Teacher.act({ a: 't_hide', gid: b.dataset.hide }); }; });
+  document.querySelectorAll('[data-kick]').forEach(function (b) { b.onclick = function () { if (confirm('이 참가자를 목록에서 뺄까요? (점수도 사라져요)')) Teacher.act({ a: 't_kick', target: b.dataset.kick }); }; });
+  document.querySelectorAll('[data-credit]').forEach(function (b) {
+    b.onclick = function () { var x = b.dataset.credit.split(':'); if (b.classList.contains('d')) return; if (confirm('미션 ' + x[1] + '을(를) 강사 확인으로 인정할까요?')) Teacher.act({ a: 't_credit', target: x[0], t: +x[1] }); };
+  });
+};
+
+// ═════════ 전광판(큰 화면) ═════════
+function Board() {}
+Board.code = null; Board.st = null; Board.reveal = 0; Board.qr = false;
+Board.start = function (code) {
+  Board.code = code;
+  var fit = function () { document.body.style.zoom = Math.max(1, Math.min(2.2, innerWidth / 1280)).toFixed(2); };
+  fit(); addEventListener('resize', fit);
+  document.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'ArrowRight') { Board.reveal = Math.min(4, Board.reveal + 1); Board.render(); } if (e.key === 'ArrowLeft') { Board.reveal = Math.max(0, Board.reveal - 1); Board.render(); } });
+  Board.poll();
+};
+Board.poll = async function () {
+  try { var st = await apiGet({ a: 'board', code: Board.code }); if (st.ok) { Board.st = st; Board.render(); } } catch (e) {}
+  setTimeout(Board.poll, 2000);
+};
+Board.render = function () {
+  var st = Board.st, m = M[st.turn], join = location.origin + location.pathname + '?code=' + st.code;
+  var h = '<div class="board">';
+  if (st.turn >= 9 && st.final) {
+    var f = st.final, show = Board.reveal;
+    h += '<div style="text-align:center"><div class="pill p-sun" style="font-size:20px">' + esc(st.title) + '</div><h1 style="margin-top:10px">' + icon('trophy') + ' 시상식</h1><div class="mute">스페이스바를 누를 때마다 3위 → 2위 → 1위 공개</div></div><div class="podium" style="margin-top:30px">';
+    [1, 0, 2].forEach(function (i) {
+      var p = f[i]; if (!p) return;
+      var vis = (i === 2 && show >= 1) || (i === 1 && show >= 2) || (i === 0 && show >= 3);
+      var hgt = [300, 230, 180][i], col = ['#ffc23d', '#9fb3c8', '#e3a06b'][i];
+      h += '<div class="p" style="width:320px">' + (vis ? '<div class="reveal"><div class="nm" style="font-size:40px">' + esc(p.name) + '</div><div style="font-size:22px" class="ink2">' + esc(p.school) + ' · ' + p.score + '점</div><div class="badges" style="justify-content:center;margin:8px 0">' + p.badges.slice(0, 5).map(function (k) { return '<img src="' + IMG + 'b_' + k + '.webp" style="width:44px" alt="">'; }).join('') + '</div></div>' : '<div class="nm" style="font-size:40px;color:#cfd3db">?</div>') +
+        '<div class="blk" style="height:' + hgt + 'px;background:' + col + ';font-size:80px">' + (i + 1) + '</div></div>';
+    });
+    h += '</div>';
+    if (show >= 4) h += '<div class="card reveal" style="max-width:900px;margin:10px auto 0"><h2>4~10위</h2><div class="rank" style="margin-top:10px">' + f.slice(3, 10).map(function (p) { return '<div class="r"><b>' + p.rank + '</b><span class="grow">' + esc(p.school) + ' ' + esc(p.name) + '</span><b style="width:auto">' + p.score + '</b></div>'; }).join('') + '</div></div>';
+    if (show === 3 && !Board.cf) { Board.cf = 1; confetti(); setTimeout(confetti, 900); }
+  } else {
+    h += '<div class="row" style="align-items:flex-start"><div class="grow"><div class="logo" style="font-size:30px">' + icon('compass') + ' AI 탐험대</div><div class="pill p-gray" style="font-size:18px;margin-top:8px">' + esc(st.title) + '</div>' +
+      '<div class="row" style="margin-top:24px;gap:22px">' + icon(m.icon, 'ico-lg') + '<div><div class="pill p-coral" style="font-size:18px">미션 ' + st.turn + ' / 9 · ' + mmss(st.now - st.turnAt) + '</div><h1 style="margin-top:8px">' + esc(m.title) + '</h1></div></div></div>' +
+      '<div class="card" style="text-align:center;min-width:300px"><div class="mute">방 번호</div><div class="bigcode">' + st.code + '</div><div id="qr" style="display:flex;justify-content:center;margin-top:10px"></div><div class="small mute" style="margin-top:8px">휴대폰·PC로 QR을 찍거나<br>주소창에 접속</div></div></div>';
+    var pd = st.total ? Math.round(st.doneCount / st.total * 100) : 0, pr = st.total ? Math.round(st.readyCount / st.total * 100) : 0;
+    h += '<div class="grid2" style="grid-template-columns:1.2fr 1fr"><div class="card"><div class="row"><h2 class="grow">미션 완료</h2><b style="font-size:34px">' + st.doneCount + '/' + st.total + '</b></div><div class="bar" style="margin-top:10px"><i style="width:' + pd + '%"></i></div>' +
+      '<div class="row" style="margin-top:20px"><h2 class="grow">준비완료</h2><b style="font-size:34px">' + st.readyCount + '/' + st.total + '</b></div><div class="bar" style="margin-top:10px"><i style="width:' + pr + '%;background:var(--sky)"></i></div>' +
+      (st.sosCount ? '<div class="pill p-red" style="font-size:20px;margin-top:18px">' + icon('sos') + ' 도움 요청 ' + st.sosCount + '명 — 도우미 선생님 출동!</div>' : '') + '</div>' +
+      '<div class="card"><h2>' + icon('trophy') + ' 상위 5명</h2><div class="rank" style="margin-top:12px;font-size:22px">' + st.top5.map(function (p, i) { return '<div class="r"><b>' + (i < 3 ? '<img src="' + IMG + 'medal' + (i + 1) + '.webp" style="width:34px;vertical-align:middle" alt="' + (i + 1) + '">' : (i + 1)) + '</b><span class="grow">' + esc(p.school) + ' ' + esc(p.name) + '</span><b style="width:auto">' + p.score + '</b></div>'; }).join('') + '</div></div></div>';
+    if (st.turn >= 5 && st.gallery.length) h += '<div class="card"><h2>' + icon('gallery') + ' 전시관 ' + st.gallery.length + '점</h2><div class="gal" style="margin-top:12px">' + st.gallery.slice(-8).reverse().map(function (g) { return '<div class="gcard"><span class="pill p-gray k">' + ({ 5: 'ChatGPT', 6: 'Gemini', 7: 'Claude' }[g.t] || '') + '</span><div class="t">' + esc(g.title) + '</div><div class="small mute">' + esc(g.name) + ' · ♥ ' + g.likes + '</div></div>'; }).join('') + '</div></div>';
+  }
+  h += '</div>';
+  $('#app').innerHTML = h;
+  var q = $('#qr');
+  if (q && window.QRCode) {
+    if (!Board.qrSrc || Board.qrFor !== join) {
+      var tmp = document.createElement('div'); new QRCode(tmp, { text: join, width: 340, height: 340, correctLevel: QRCode.CorrectLevel.M });
+      var cv = tmp.querySelector('canvas'); Board.qrSrc = cv ? cv.toDataURL() : ((tmp.querySelector('img') || {}).src || ''); Board.qrFor = join;
+    }
+    if (Board.qrSrc) q.innerHTML = '<img src="' + Board.qrSrc + '" style="width:170px;height:170px" alt="입장 QR">';
+  }
+};
+
+// ───────── 시작 ─────────
+if (MODE === 'board') Board.start(Q.get('board'));
+else if (MODE === 'teacher') Teacher.start();
+else Player.start();
+</script>
+</body>
+</html>
