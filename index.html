@@ -578,7 +578,11 @@ Player.submit = async function (t, m) {
   if (sub) { sub.disabled = true; sub.textContent = '확인하는 중…'; }
   var r = await Player.act(body);
   var sb = $('#psub'); if (!r.ok && sb) { sb.disabled = false; sb.textContent = k === 'html' || k === 'link' ? '다시 인증하기' : '확인'; }
-  if (r.ok && !r.already) { confetti(); toast(icon(m.icon) + ' 미션 완료! +' + (r.pts || 0) + '점'); }
+  if (r.ok && !r.already) {
+    // 서버 응답을 기다리지 않고 카드를 바로 '완료'로(다음 조회 때 정확한 값으로 바뀜)
+    if (Player.st && !Player.st.me.done[t]) { Player.st.me.done[t] = { pts: r.pts || 0, speed: 0, kind: k }; Player.st.me.score += (r.pts || 0); Player.sig = null; Player.render(); }
+    confetti(); toast(icon(m.icon) + ' 미션 완료! +' + (r.pts || 0) + '점');
+  }
 };
 Player.play = async function (gid) {
   $('#layer').innerHTML = '<div class="modal"><div class="box"><div class="bar"><b class="grow">게임 불러오는 중…</b><button class="b-sm" id="gx">닫기</button></div><iframe id="gframe" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe></div></div>';
